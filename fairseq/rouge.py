@@ -10,15 +10,15 @@ class RougeScorer:
       self.hypothesis = []
       self.references = []
 
-   def add_string(self, hypothesis, reference):
+   def add_string(self, reference, hypothesis):
       """
       Adds the given hypothesis and reference sentences
       to evaluate them later.
-      :param hypothesis: The hypothesis sentence.
       :param reference: The reference sentence.
+      :param hypothesis: The hypothesis sentence.
       """
-      self.hypothesis.append(hypothesis)
       self.references.append(reference)
+      self.hypothesis.append(hypothesis)
 
    def result_string(self):
       """
