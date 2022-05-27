@@ -12,6 +12,7 @@ Here we provide code to reproduce our results. We provide all training data and 
 ```
 pip install -qU git+https://github.com/harvardnlp/pytorch-struct
 pip install -qU git+https://github.com/harvardnlp/genbmm
+pip install rouge
 pip install -q matplotlib
 pip install -q sacremoses
 pip install --editable .
