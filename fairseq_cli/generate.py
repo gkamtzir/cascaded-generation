@@ -14,7 +14,7 @@ import sys
 
 import torch
 
-from fairseq import bleu, rouge, checkpoint_utils, options, tasks, utils
+from fairseq import bleu, rouge, nist, checkpoint_utils, options, tasks, utils
 from fairseq.logging import progress_bar
 from fairseq.logging.meters import StopwatchMeter, TimeMeter
 from fairseq.data import encoders
@@ -156,6 +156,7 @@ def _main(args, output_file, rank=0, world_size=1, backend='NCCL', master_addr='
         if args.sacrebleu:
             scorer = bleu.SacrebleuScorer()
             rouge_scorer = rouge.RougeScorer()
+            nist_scorer = nist.NISTScorer()
         else:
             scorer = bleu.Scorer(tgt_dict.pad(), tgt_dict.eos(), tgt_dict.unk())
         num_sentences = 0
@@ -277,7 +278,8 @@ def _main(args, output_file, rank=0, world_size=1, backend='NCCL', master_addr='
                             if hasattr(scorer, 'add_string'):
                                 scorer.add_string(target_str, hypo_str)
                                 rouge_scorer.add_string(target_str, hypo_str)
-                                print(rouge_scorer.scorer.get_scores(target_str, hypo_str))
+                                if len(hypo_str.split()) > 2:
+                                    nist_scorer.add_string(target_str, hypo_str)
                             else:
                                 scorer.add(target_tokens, hypo_tokens)
 
@@ -295,7 +297,7 @@ def _main(args, output_file, rank=0, world_size=1, backend='NCCL', master_addr='
                 num_sentences, gen_timer.n, gen_timer.sum, num_sentences / gen_timer.sum, 1. / gen_timer.avg))
             logger.info('Latency {:.8f}'.format(1000*gen_timer.sum/num_sentences))
             if has_target:
-                logger.info('Generate {} with beam={}: {}, {}'.format(args.gen_subset, args.beam, scorer.result_string(), rouge_scorer.result_string()))
+                logger.info('Generate {} with beam={}: {}, {}, {}'.format(args.gen_subset, args.beam, scorer.result_string(), rouge_scorer.result_string(), nist_scorer.result_string()))
 
     return scorer
 
